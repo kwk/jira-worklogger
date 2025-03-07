@@ -30,13 +30,15 @@ duration like `1h` for one hour or `20m` for twenty minutes.
 
 ![](docs/screencapture/manual-time-logging.gif)
 
-## Result in JIRA
+Result in JIRA
+--------------
 
 In JIRA the result from the two time logs will look like this:
 
 ![](docs/screencapture/jira-result.png)
 
-## Usage
+Usage
+-----
 
 ### Personal access token (PAT)
 
@@ -76,7 +78,8 @@ $ poetry run jira-worklogger
    Add a new server
 ```
 
-# Build Documentation
+Build Documentation
+===================
 
 To build the documentation, you need the
 [`agg`](https://github.com/asciinema/agg) executable in your path.
