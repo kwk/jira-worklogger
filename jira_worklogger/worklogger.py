@@ -75,7 +75,7 @@ def validate_server_name(c: Config) -> Callable[[str], str|bool]:
         c (Config): The configuration can be used to check if a server name is already taken.
 
     Returns:
-        Callable[[str], str|bool]: A function to be used in the validate argument of a questionary text. 
+        Callable[[str], str|bool]: A function to be used in the validate argument of a questionary text.
     """
     def validate(name: str):
         if len(name) <= 0:
