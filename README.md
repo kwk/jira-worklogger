@@ -1,13 +1,16 @@
-# README
+README
+======
 
 This command line tool let's you log the time that you've spent on one or more
 JIRA issues without the need to click through the JIRA web interface. We allow
 you to log the time either automatically (with a timer) or manually (by entering
 how much time you've spent in words, e.g. `1h`, `30m`).
 
-## Demo
+Demo
+----
 
-## First time setup and automatic time logging
+First time setup and automatic time logging
+-------------------------------------------
 
 This demonstration shows how `jira-worklogger` is set up for the first time and
 then used to track the time you spent on a JIRA issue automatically. For this,
@@ -18,7 +21,8 @@ with an optional comment.
 
 ![](docs/screencapture/automatic-time-logging.gif)
 
-## Manual time logging
+Manual time logging
+-------------------
 
 The following demo shows how you can show your issues from a pre-configure JIRA
 Server and select one to track the time manually. This is done by giving a
