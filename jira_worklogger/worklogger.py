@@ -109,6 +109,7 @@ def add_new_server_questions(c: Config) -> Server:
 
 
 def add_new_server(c: Config):
+    """Asks a few questions to add a new server configuration to the config"""
     s = add_new_server_questions(c)
     c.add_server(s)
 
