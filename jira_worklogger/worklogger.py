@@ -115,7 +115,7 @@ def add_new_server(c: Config):
 
 
 def main(args=None):
-
+    """The main program"""
     config = Config()
     config.load()
 
