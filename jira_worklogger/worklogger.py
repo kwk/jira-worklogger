@@ -13,6 +13,7 @@ import datetime
 import configparser
 import dataclasses
 from collections.abc import Callable
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,7 +26,7 @@ class Server:
 
 
 class Config:
-    def __init__(self):
+    def __init__(self) -> None:
         self.servers: list[Server] = []
         self.config_dir = pathlib.Path.home().joinpath(
             pathlib.Path(".config/jira-worklogger/")
@@ -33,7 +34,7 @@ class Config:
         self.config_path = self.config_dir.joinpath("jira-worklogger.conf")
         self._parser: configparser.ConfigParser = None
 
-    def load(self):
+    def load(self) -> None:
         # Ensure config file exists and if not create it
         self.config_dir.mkdir(exist_ok=True)
         self.config_path.touch(exist_ok=True)
@@ -54,13 +55,13 @@ class Config:
                 Server(auth_type=auth_type, url=url, name=section, pat=pat)
             )
 
-    def write(self, autoreload: bool = True):
+    def write(self, autoreload: bool = True) -> None:
         with open(self.config_path, "w") as f:
             self._parser.write(f)
         if autoreload:
             self.load()
 
-    def add_server(self, s: Server):
+    def add_server(self, s: Server) -> None:
         section = s.name
         self._parser.add_section(section=section)
         self._parser.set(section=section, option="url", value=s.url)
@@ -77,7 +78,7 @@ def validate_server_name(c: Config) -> Callable[[str], str|bool]:
     Returns:
         Callable[[str], str|bool]: A function to be used in the validate argument of a questionary text.
     """
-    def validate(name: str):
+    def validate(name: str) -> str|bool:
         if len(name) <= 0:
             return "Please, enter a name for the server!"
         if c._parser.has_section(name):
@@ -108,13 +109,13 @@ def add_new_server_questions(c: Config) -> Server:
     return Server(auth_type="pat", url=url, name=name, pat=pat)
 
 
-def add_new_server(c: Config):
+def add_new_server(c: Config) -> None:
     """Asks a few questions to add a new server configuration to the config"""
     s = add_new_server_questions(c)
     c.add_server(s)
 
 
-def main(args=None):
+def main(args:dict[str, str]|None=None, server: Server|None=None, jira:JIRA|None=None, myself:dict[str,Any]|None=None) -> None:
     """The main program"""
     config = Config()
     config.load()
@@ -122,7 +123,6 @@ def main(args=None):
     if len(config.servers) == 0:
         add_new_server(config)
 
-    server: Server = None
     while server is None:
         server_choices = [
             questionary.Choice(title=f"{s.name} - {s.url}", value=s) for s in config.servers
@@ -140,16 +140,18 @@ def main(args=None):
             server = s
 
     # Some Authentication Methods
-    jira = JIRA(
-        server=server.url,
-        token_auth=server.pat,
-    )
+    if jira == None:
+        jira = JIRA(
+            server=server.url,
+            token_auth=server.pat,
+        )
 
     # Who has authenticated
-    myself = jira.myself()
-    logging.debug(
-        f"You're authenticated with JIRA ({server.url}) as: {myself['name']} - {myself['displayName']} ({myself['emailAddress']})"
-    )
+    if myself == None:
+        myself = jira.myself()
+        logging.debug(
+            f"You're authenticated with JIRA ({server.url}) as: {myself['name']} - {myself['displayName']} ({myself['emailAddress']})"
+        )
 
     # Which field to pull from the JIRA server for each issue
     pull_issue_fields = ["id", "key", "summary", "statusCategory", "status", "description"]
@@ -240,18 +242,19 @@ def main(args=None):
         ],
     ).unsafe_ask()
 
-    time_spent = 0
+    time_spent : str = "0m"
 
     comment : str = ""
 
     if log_method == "manual":
+        comment = questionary.text(
+            message="Enter an optional comment for what you've worked on:", multiline=True
+        ).unsafe_ask()
         time_spent = questionary.text(
             message='How much time did you time spent, e.g. "2d", or "30m"?',
             validate=lambda text: True if len(text) > 0 else "Please enter a value",
         ).unsafe_ask()
-        comment = questionary.text(
-            message="Enter an optional comment for what you've worked on:", multiline=True
-        ).unsafe_ask()
+
 
     if log_method == "auto":
         questionary.press_any_key_to_continue(
@@ -264,8 +267,22 @@ def main(args=None):
         stop_time = datetime.datetime.now()
         seconds_spent = (stop_time - start_time).total_seconds()
         minutes_spent = round(seconds_spent / 60.0, 2)
-        time_spent = f"{minutes_spent}m"
-        questionary.print(text=f"We've tracked a total of {time_spent} minutes.")
+        time_spent = "%dm" % minutes_spent
+
+    happy_with_time = False
+    while not happy_with_time:
+        happy_with_time = questionary.select(
+            message=f"We've tracked a total of {time_spent}. Do you want to adjust the time?", choices=[
+                questionary.Choice(title=f"No, {time_spent} is fine.", value=True),
+                questionary.Choice(title=f"Yes, I want to adjust the time spent.", value=False)
+            ]
+        ).unsafe_ask()
+        if not happy_with_time:
+            time_spent = questionary.text(
+                message='How much time did you time spent, e.g. "2d", or "30m"?',
+                validate=lambda text: True if len(text) > 0 else "Please enter a value",
+                default=time_spent,
+            ).unsafe_ask()
 
     # Finally update the worklog of all issues
     for issue_key in issue_keys:
@@ -278,11 +295,20 @@ def main(args=None):
         )
         questionary.print(f"Added worklog to issue {issue_key}")
 
-    questionary.print(text="Thank you for using this tool.")
+    _continue = questionary.select(
+        message=f"Work on another ticket?", choices=[
+            questionary.Choice(title=f"Yes.", value=True),
+            questionary.Choice(title=f"No.", value=False)
+        ]
+    ).unsafe_ask()
 
-def cli(args=None):
+    if _continue:
+        main(args, server=server, jira=jira, myself=myself)
+
+def cli(args:dict[str, str]|None=None) -> None:
     try:
         main(args)
+        questionary.print(text="Thank you for using this tool.")
     except KeyboardInterrupt:
         questionary.print("Cancelled by user. Exiting.")
         sys.exit(1)
