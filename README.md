@@ -30,6 +30,17 @@ duration like `1h` for one hour or `20m` for twenty minutes.
 
 ![](docs/screencapture/manual-time-logging.gif)
 
+Advanced usage and "did"
+------------------------
+
+The following demo shows how to work on multiple issues with different tracking methods
+as well as how to show your work log using the [did](https://github.com/psss/did) tool.
+NOTE: At the time of writing this [my pr](https://github.com/psss/did/pull/429) was not
+yet merged into did.
+
+![](docs/screencapture/jira-worklogger-and-did.gif)
+
+
 Result in JIRA
 --------------
 

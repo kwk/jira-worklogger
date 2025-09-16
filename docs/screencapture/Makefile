@@ -22,7 +22,7 @@ show-gifs:
 %: %.cast
 	@echo "ROOT_DIR=$(ROOT_DIR)"
 	@echo "Converting $@.cast into $@.gif"
-	agg --theme nord --idle-time-limit 2 --font-size 20 --rows 15 --cols 148 $@.cast $@.gif
+	agg --theme nord --font-family "AdwaitaMono Nerd Font" --idle-time-limit 2 --font-size 20 --rows 30 --cols 148 --last-frame-duration 30 $@.cast $@.gif
 
 .PHONY: record
 record:
