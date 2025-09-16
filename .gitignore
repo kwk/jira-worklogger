@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+
+# Vim
+*.sw*
+.cache
+tags
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Rope
+.ropeproject/
+
+# coveralls code coverage
+.coverage
+*,cover
+
+# sphinx docs
+_build
+
+# rpm build files
+tmp/
+
+# VS Code
+.vscode
+
+# PyCharm
+.idea
