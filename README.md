@@ -6,6 +6,15 @@ JIRA issues without the need to click through the JIRA web interface. We allow
 you to log the time either automatically (with a timer) or manually (by entering
 how much time you've spent in words, e.g. `1h`, `30m`).
 
+Installation
+------------
+
+Install `jira-worklogger` from pip using this command:
+
+```console
+$ python -m pip install jira-worklogger
+```
+
 Demo
 ----
 
